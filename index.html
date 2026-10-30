@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GymTracker">
+  <title>Gym Tracker</title>
+  <style>
+    :root {
+      --bg-navy: #0B132B;
+      --card-graphite: #262936;
+      --input-graphite: #1C1E26;
+      --border-graphite: #3A3F54;
+      --accent: #3B82F6;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --danger: #EF4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-navy);
+      color: var(--text-main);
+      padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 30px);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-graphite);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .stats-badge {
+      background: var(--card-graphite);
+      border: 1px solid var(--border-graphite);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background-color: var(--card-graphite);
+      border: 1px solid var(--border-graphite);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      background-color: var(--input-graphite);
+      border: 1px solid var(--border-graphite);
+      color: var(--text-main);
+      padding: 13px 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    button.btn-primary {
+      width: 100%;
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity 0.2s;
+    }
+
+    button.btn-primary:active {
+      opacity: 0.8;
+    }
+
+    .day-group {
+      margin-bottom: 24px;
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+
+    .day-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .day-volume {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .set-item {
+      background-color: var(--card-graphite);
+      border: 1px solid var(--border-graphite);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .set-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ex-name {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .ex-details {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .ex-details span {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .delete-btn:active {
+      color: var(--danger);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 40px 20px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Зал • Трекер</h1>
+    <div class="stats-badge" id="totalSetsBadge">Подходов: 0</div>
+  </header>
+
+  <div class="card">
+    <div class="form-group">
+      <label for="exercise">Упражнение</label>
+      <input type="text" id="exercise" list="exercise-list" placeholder="Например: Жим лежа" autocomplete="off">
+      <datalist id="exercise-list">
+        <option value="Жим штанги лежа">
+        <option value="Приседания со штангой">
+        <option value="Становая тяга">
+        <option value="Армейский жим">
+        <option value="Тяга штанги в наклоне">
+        <option value="Подъем штанги на бицепс">
+      </datalist>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label for="weight">Вес штанги (кг)</label>
+        <input type="number" id="weight" inputmode="decimal" step="0.5" placeholder="80">
+      </div>
+      <div class="form-group">
+        <label for="reps">Повторения</label>
+        <input type="number" id="reps" inputmode="numeric" placeholder="10">
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="addSet()">Записать подход</button>
+  </div>
+
+  <div id="historyContainer"></div>
+
+  <script>
+    const STORAGE_KEY = 'gym_tracker_sets_v1';
+    let sets = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sets));
+    }
+
+    function addSet() {
+      const exInput = document.getElementById('exercise');
+      const weightInput = document.getElementById('weight');
+      const repsInput = document.getElementById('reps');
+
+      const exercise = exInput.value.trim();
+      const weight = parseFloat(weightInput.value);
+      const reps = parseInt(repsInput.value, 10);
+
+      if (!exercise || isNaN(weight) || isNaN(reps)) {
+        alert('Заполни название упражнения, вес и количество повторений');
+        return;
+      }
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+
+      const newSet = {
+        id: Date.now(),
+        date: dateStr,
+        exercise,
+        weight,
+        reps
+      };
+
+      sets.unshift(newSet);
+      saveToStorage();
+      render();
+
+      repsInput.value = '';
+    }
+
+    function deleteSet(id) {
+      sets = sets.filter(s => s.id !== id);
+      saveToStorage();
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById('historyContainer');
+      const badge = document.getElementById('totalSetsBadge');
+      badge.textContent = `Подходов: ${sets.length}`;
+
+      if (sets.length === 0) {
+        container.innerHTML = '<div class="empty-state">Пока нет записей. Добавь свой первый подход!</div>';
+        return;
+      }
+
+      const grouped = sets.reduce((acc, item) => {
+        if (!acc[item.date]) acc[item.date] = [];
+        acc[item.date].push(item);
+        return acc;
+      }, {});
+
+      container.innerHTML = Object.keys(grouped).map(date => {
+        const daySets = grouped[date];
+        const totalVolume = daySets.reduce((sum, s) => sum + (s.weight * s.reps), 0);
+
+        const itemsHtml = daySets.map(s => `
+          <div class="set-item">
+            <div class="set-info">
+              <div class="ex-name">${s.exercise}</div>
+              <div class="ex-details"><span>${s.weight} кг</span> × <span>${s.reps} повт.</span></div>
+            </div>
+            <button class="delete-btn" onclick="deleteSet(${s.id})" aria-label="Удалить">✕</button>
+          </div>
+        `).join('');
+
+        return `
+          <div class="day-group">
+            <div class="day-header">
+              <div class="day-title">${date}</div>
+              <div class="day-volume">Тоннаж: ${totalVolume} кг</div>
+            </div>
+            ${itemsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    render();
+  </script>
+</body>
+</html>
